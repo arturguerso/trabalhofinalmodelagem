@@ -60,5 +60,21 @@ const atualizar = async(req,res)=>{
     }
 }
 
-module.exports = (cadastrar, listar, apagar, atualizar)
+const listarId = async (req, res) => {
+    const id = req.params.id; 
+    try {
+        const valor = await Usuario.findByPk(id); 
+        if (valor) {
+            res.status(200).json(valor); 
+        } else {
+            res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+    } catch (err) {
+        console.error('Erro ao buscar usuário por ID', err);
+        res.status(500).json({ message: 'Erro ao buscar usuário' });
+    }
+}
+
+
+module.exports = (cadastrar, listar, listarId, listarNome, apagar, atualizar)
 
