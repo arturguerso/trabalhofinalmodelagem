@@ -74,7 +74,27 @@ const listarId = async (req, res) => {
         res.status(500).json({ message: 'Erro ao buscar usuário' });
     }
 }
+/////////////////////////////////////////////////////////////////////
+const listarNome = async (req, res) => {
+    try {
+      const nome = await Usuario.findOne()
+      if (nome) {
+        res.status(200).json(nome.nome)
+        console.log(nome.nome)
+      } else {
+        res.status(404).json({ message: 'Usuário não encontrado' })
+      }
+    } catch (err) {
+      console.error('Erro ao listar nome do usuário', err)
+      res.status(500).json({ message: 'Erro ao listar nome do usuário' })
+    }
+  }
 
-
-module.exports = (cadastrar, listar, listarId, listarNome, apagar, atualizar)
-
+  module.exports = {
+    cadastrar,
+    listar,
+    listarId,
+    listarNome,
+    apagar,
+    atualizar
+};
