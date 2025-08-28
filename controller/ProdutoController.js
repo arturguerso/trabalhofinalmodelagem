@@ -1,11 +1,11 @@
-const Produto = require('../model/Produto') // Certifique-se de que o caminho para o seu modelo Produto está correto
+const Produto = require('../model/Produto') 
+const { Op } = require('sequelize')
 
-// Funções do controlador
 const cadastrar = async(req,res)=>{
     const dados = req.body
     try{
         const valores = await Produto.create(dados)
-        res.status(201).json(valores)
+        res.status(200).json(valores)
     }catch(err){
         console.error('Erro ao cadastrar dados do Produto no site', err)
         res.status(500).json({message: 'Erro ao cadastrar dados do Produto no site'})
@@ -15,11 +15,11 @@ const cadastrar = async(req,res)=>{
 const listar = async(req,res)=>{
     try{
         const valores = await Produto.findAll()
-        if(valores.length > 0){ // Melhor verificar se o array não está vazio
+        if(valores.length > 0){ 
             res.status(200).json(valores)
-            // console.log(valores) // Considere remover este console.log em produção
+           
         }else{
-            res.status(404).json({message: 'Nenhum Produto encontrado'}) // Mensagem mais específica
+            res.status(404).json({message: 'Nenhum Produto encontrado'}) 
         }
     }catch(err){
         console.error('Erro ao listar dados do Produto no sistema', err)
@@ -32,7 +32,7 @@ const apagar = async(req,res)=>{
     try{
         const valor = await Produto.findByPk(id)
         if(valor === null){
-            res.status(404).json({message: 'Produto não encontrado para apagar'}) // Mensagem mais específica
+            res.status(404).json({message: 'Produto não encontrado para apagar'}) 
         }else{
             await Produto.destroy({where: {id:id}})
             res.status(200).json({message: 'Sucesso ao apagar dados do Produto'})
@@ -47,12 +47,12 @@ const atualizar = async(req,res)=>{
     const dados = req.body
     const id = req.params.id
     try{
-        const valoresExistentes = await Produto.findByPk(id) // Renomeei para maior clareza
+        const valoresExistentes = await Produto.findByPk(id)
         if(valoresExistentes === null){
-            res.status(404).json({message: 'Produto não encontrado para atualizar'}) // Mensagem mais específica
+            res.status(404).json({message: 'Produto não encontrado para atualizar'}) 
         }else{
             await Produto.update(dados, {where:{id:id}})
-            const valoresAtualizados = await Produto.findByPk(id) // Pega os dados atualizados para retornar
+            const valoresAtualizados = await Produto.findByPk(id) 
             res.status(200).json(valoresAtualizados)
         }
     }catch(err){
@@ -64,7 +64,7 @@ const atualizar = async(req,res)=>{
 const listarId = async (req, res) => {
     const id = req.params.id;
     try {
-        const valor = await Produto.findByPk(id); // Era 'Usuario.findByPk', corrigido para 'Produto.findByPk'
+        const valor = await Produto.findByPk(id); 
         if (valor) {
             res.status(200).json(valor);
         } else {
@@ -75,30 +75,45 @@ const listarId = async (req, res) => {
         res.status(500).json({ message: 'Erro ao buscar Produto' });
     }
 }
-
-const listarNome = async (req, res) => {
-    const { nome } = req.query; // É mais comum buscar por nome usando query parameters
+const listarTitulo = async (req, res) => {
+    const { nome } = req.params; 
     try {
-        const produto = await Produto.findOne({ where: { nome: nome } }); // Adicionado filtro WHERE
-        if (produto) {
-            res.status(200).json(produto); // Retorna o objeto produto, não apenas o nome
-            // console.log(produto.nome); // Considere remover este console.log
-        } else {
-            res.status(404).json({ message: 'Produto não encontrado' });
-        }
+      const produtos = await Produto.findAll({
+        where: { titulo: { [Op.like]: `%${nome}%` } }
+      });
+      if (produtos.length === 0) {
+        return res.status(404).json({ message: 'Produto não encontrado' });
+      } else {
+        console.log(produtos)
+        res.status(200).json(produtos)
+    }
     } catch (err) {
-        console.error('Erro ao listar nome do Produto', err);
-        res.status(500).json({ message: 'Erro ao listar nome do Produto' });
+      console.error('Erro ao consultar o titulo', err);
+      res.status(500).json({ message: 'Erro ao consultar o titulo' });
+    }
+  };
+
+
+  const grafico = async (req,res)=>{
+    try{
+        // Aqui pega só os campos que interessam pro gráfico
+        const dados = await Produto.findAll({
+            attributes: ['categoria', 'estoque', 'preco'] // já serve pra gráficos
+        })
+        res.status(200).json(dados)
+    }catch(err){
+        console.error('Erro ao listar dados do gráfico!',err)
+        res.status(500).json({message: 'Erro ao listar dados do gráfico!'})
     }
 }
 
 
-// --- EXPORTAÇÃO CORRIGIDA ---
 module.exports = {
     cadastrar,
     listar,
     apagar,
     atualizar,
     listarId,
-    listarNome
+    listarTitulo,
+    grafico
 };

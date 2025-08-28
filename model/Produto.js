@@ -38,18 +38,12 @@ const Produto = db.define('produto', {
         allowNull: false
     },
     /////////////////////////////////////////
-    brand: {
+    marca: {
         type: DataTypes.STRING(50),
         allowNull: true
     },
     /////////////////////////////////////////
-    thumbnail: {
-        type: DataTypes.STRING(255),
-        allowNull: true,
-        validate: {
-            isUrl: true
-        }
-    }
+
 }, {
     timestamps: true
 })

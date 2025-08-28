@@ -21,22 +21,30 @@ const Usuario = db.define('usuario', {
         allowNull: false
     },
     email: {
-        type: DataTypes.STRING(30),
-        allowNull: false,
-        validate: {
-            isEmail: true
-        }
-    },
+         type: DataTypes.STRING(100), 
+          allowNull: false
+        },
     telefone: {
         type: DataTypes.STRING(30),
         allowNull: false
     },
+    cidade: {
+        type: DataTypes.STRING(30),
+        allowNull: false
+        
+    },
+    estado: {
+        type: DataTypes.STRING(30),
+        allowNull: false
+        
+    },
+
     endereco: {
         type: DataTypes.STRING(30),
         allowNull: false
     },
     dataNascimento: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: false
     }
 }, {

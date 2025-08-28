@@ -1,4 +1,5 @@
 const  Usuario = require('../model/Usuario')
+const { Op } = require('sequelize')
 //--------------------------------------
 const cadastrar = async(req,res)=>{
  const dados = req.body
@@ -27,20 +28,21 @@ const listar = async(req,res)=>{
 }
 ////////////////listar feito
 const apagar = async(req,res)=>{
-    const id = req.params.id
+     const id = req.params.id
     try{
-        const valor = await Cliente.findByPk(id)
-        if(valor === null){
-            res.status(404).json({message: 'erro no site'})
-        }else{
-            await  Usuario.destroy({where: {id:id}})
-            res.status(200).json({message: 'sucesso ao apagar dados do cliente'})
-        }
-    }catch(err){
-        console.error('erro ao apagar dados do cliente do sistema', err)
-        res.status(500).json({message: 'erro ao apagar dados do cliente'})
+
+     const valor = await Usuario.findByPk(id)
+  if(valor === null){
+    res.status(404).json({message: 'Usuário não encontrado'})
+    }else{
+    await Usuario.destroy({where: {id:id}})
+    res.status(204).json({message: 'Sucesso ao apagar dados do usuário'}) 
     }
-}
+   }catch(err){
+    console.error('Erro ao apagar dados do usuário do sistema', err)
+    res.status(500).json({message: 'Erro interno ao apagar dados do usuário'})
+     }
+    }
 //apagar feitop/////////////////////////
 const atualizar = async(req,res)=>{
     const dados = req.body
@@ -75,26 +77,44 @@ const listarId = async (req, res) => {
     }
 }
 /////////////////////////////////////////////////////////////////////
-const listarNome = async (req, res) => {
-    try {
-      const nome = await Usuario.findOne()
-      if (nome) {
-        res.status(200).json(nome.nome)
-        console.log(nome.nome)
-      } else {
-        res.status(404).json({ message: 'Usuário não encontrado' })
-      }
-    } catch (err) {
-      console.error('Erro ao listar nome do usuário', err)
-      res.status(500).json({ message: 'Erro ao listar nome do usuário' })
-    }
-  }
+    
 
+const listarNome = async (req, res) => {
+    const { nome } = req.params
+    try {
+        const dados = await Usuario.findAll({
+            where: { nome: { [Op.like]: `%${nome}%` } }
+        })
+        if (dados.length === 0) {
+            res.status(404).json({ message: 'Usuário não encontrado' })
+        } else {
+            console.log(dados)
+            res.status(200).json(dados)
+        }
+    }catch(err) {
+        console.error('Erro ao consultar o nome', err)
+        res.status(500).json({ message: 'Erro ao consultar o nome' })
+    }
+}
+
+const grafico = async (req,res)=>{
+    try{
+        // Corrigido para usar Usuario em vez de Produto
+        const dados = await Usuario.findAll({
+            attributes: ['estado', 'idade'] // já serve pra gráficos
+        })
+        res.status(200).json(dados)
+    }catch(err){
+        console.error('Erro ao listar dados do gráfico!',err)
+        res.status(500).json({message: 'Erro ao listar dados do gráfico!'})
+    }
+}
   module.exports = {
     cadastrar,
     listar,
     listarId,
     listarNome,
     apagar,
-    atualizar
+    atualizar,
+    grafico
 };
